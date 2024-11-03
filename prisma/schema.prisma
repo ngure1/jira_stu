@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int              @id @default(autoincrement())
+  name      String
+  email     String           @unique
+  projects  ProjectMembers[]
+  Task      Task[]
+  resources Resource[]
+  Comment   Comment[]
+}
+
+model Project {
+  id          Int              @id @default(autoincrement())
+  name        String
+  description String
+  created_at  DateTime         @default(now())
+  members     ProjectMembers[]
+  tasks       Task[]
+  resources   Resource[]
+  comments    Comment[]
+}
+
+model ProjectMembers {
+  id         Int     @id @default(autoincrement())
+  project_id Int
+  user_id    Int
+  project    Project @relation(fields: [project_id], references: [id])
+  user       User    @relation(fields: [user_id], references: [id])
+  role       Role    @default(MEMBER)
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  status      Status    @default(TO_DO)
+  priority    Priority?
+  due_date    DateTime
+  project_id  Int
+  project     Project   @relation(fields: [project_id], references: [id])
+  user_id     Int
+  asignee     User      @relation(fields: [user_id], references: [id])
+}
+
+model Resource {
+  id          Int      @id @default(autoincrement())
+  file_name   String
+  file_url    String
+  created_at  DateTime @default(now())
+  project_id  Int
+  project     Project  @relation(fields: [project_id], references: [id])
+  user_id     Int
+  uploaded_by User     @relation(fields: [user_id], references: [id])
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  comment    String
+  created_at DateTime @default(now())
+  user_id    Int
+  project_id Int
+  author_id  User     @relation(fields: [user_id], references: [id])
+  Project    Project  @relation(fields: [project_id], references: [id])
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+  LECTURER
+}
+
+enum Status {
+  TO_DO
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
