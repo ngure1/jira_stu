@@ -6,15 +6,7 @@ export async function GET(
 	{ params }: { params: { projectId: string } }
 ) {
 	try {
-		const { projectId: id } = await params;
-		const projectId = parseInt(id, 10);
-
-		if (isNaN(projectId)) {
-			return NextResponse.json(
-				{ error: "Invalid project ID" },
-				{ status: 400 }
-			);
-		}
+		const { projectId } = await params;
 
 		const project = await prisma.project.findUnique({
 			where: {

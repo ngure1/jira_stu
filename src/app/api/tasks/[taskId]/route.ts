@@ -6,12 +6,7 @@ export async function GET(
 	{ params }: { params: { taskId: string } }
 ) {
 	try {
-		const { taskId: id } = await params;
-		const taskId = parseInt(id, 10);
-
-		if (isNaN(taskId)) {
-			return NextResponse.json({ error: "Invalid task ID" }, { status: 400 });
-		}
+		const { taskId } = await params;
 
 		const task = await prisma.task.findUnique({
 			where: {
@@ -29,13 +24,8 @@ export async function PATCH(
 	req: Request,
 	{ params }: { params: { taskId: string } }
 ) {
-	const { taskId: id } = await params;
-	const taskId = parseInt(id, 10);
+	const { taskId } = await params;
 	try {
-		if (isNaN(taskId)) {
-			return NextResponse.json({ error: "Invalid task ID" }, { status: 400 });
-		}
-
 		// First check if task exists
 		const existingTask = await prisma.task.findUnique({
 			where: { id: taskId },
@@ -64,12 +54,7 @@ export async function DELETE(
 	{ params }: { params: { taskId: string } }
 ) {
 	try {
-		const { taskId: id } = await params;
-		const taskId = parseInt(id, 10);
-
-		if (isNaN(taskId)) {
-			return NextResponse.json({ error: "Invalid task ID" }, { status: 400 });
-		}
+		const { taskId } = await params;
 
 		const existingTask = await prisma.task.findUnique({
 			where: { id: taskId },

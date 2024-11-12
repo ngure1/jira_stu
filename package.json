@@ -2,9 +2,6 @@
 	"name": "jira_stu",
 	"version": "0.1.0",
 	"private": true,
-	"prisma": {
-		"seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
-	},
 	"scripts": {
 		"dev": "next dev --turbo",
 		"build": "next build",
@@ -14,8 +11,12 @@
 		"postmigrate": "npx @snaplet/seed sync"
 	},
 	"dependencies": {
-		"@prisma/client": "^5.21.1",
+		"@lucia-auth/adapter-prisma": "^4.0.1",
+		"@prisma/client": "^5.22.0",
+		"bcryptjs": "^2.4.3",
 		"next": "15.0.2",
+		"oslo": "^1.2.1",
+		"prisma": "^5.22.0",
 		"react": "19.0.0-rc-02c0e824-20241028",
 		"react-dom": "19.0.0-rc-02c0e824-20241028"
 	},

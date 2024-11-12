@@ -1,22 +1,19 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/client";
+import { getUser } from "@/lib/sessionMiddleware";
 
 //get projects associated with the given user wheter member or admin
 export async function GET(req: Request) {
 	try {
 		// todo modify to use authenticated user
-		const { searchParams } = new URL(req.url);
-		const id = searchParams.get("userId");
-		if (!id) {
+		const user= await getUser()
+		if (!user) {
 			return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
 		}
 
-		const userId = parseInt(id, 10);
-		console.log(userId);
-
 		const projects = await prisma.projectMembers.findMany({
 			where: {
-				user_id: userId,
+				user_id: user.id,
 			},
 			include: {
 				project: true,
@@ -45,9 +42,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
 	try {
-		const body = await req.json();
-		const { name, description } = body;
-		const user = body.user;
+		const { name, description }= await req.json();
+
+		const user = await getUser();
 
 		if (!name || !description) {
 			return NextResponse.json(
