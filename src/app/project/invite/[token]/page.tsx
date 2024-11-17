@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import prisma from "@/lib/client";
 import { getUser } from "@/lib/sessionMiddleware";
 import { redirect } from "next/navigation";
