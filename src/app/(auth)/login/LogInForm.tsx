@@ -8,21 +8,42 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 
 const LogInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-
+  const router = useRouter();
+  
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-        username: "",
+        email: "",
         password: "",
         },
   });
 
   async function onSubmit(values: LoginValues) {
-    console.log(values);
+    const response = await fetch("/api/auth/sign-in", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    })
+
+    if (response.ok) {
+      router.push("/dashboard")
+      console.log("user successfully logged in")
+    }else {
+      const error = await response.json()
+      form.setError("email", {
+        type: "manual",
+        message: error.error,
+      })
+      console.log(error)
+    }
+
   }
 
   return (
@@ -30,10 +51,10 @@ const LogInForm = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="username"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input placeholder="John Doe" {...field} />
               </FormControl>

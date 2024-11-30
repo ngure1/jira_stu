@@ -1,0 +1,1 @@
+- mode insensitive on sign up check for existing email

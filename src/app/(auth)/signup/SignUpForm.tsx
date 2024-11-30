@@ -6,15 +6,14 @@ import { Input } from "@/components/ui/input";
 import { signUpSchema, SignUpValues } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 // import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 
 const SignUpForm = () => {
-  // const [error, setError] = useState<string>();
-
-  // const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter()
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -26,7 +25,25 @@ const SignUpForm = () => {
   });
 
   async function onSubmit(values: SignUpValues) {
-    console.log(values);
+    const response = await fetch("/api/auth/sign-up", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    })
+
+    if (response.ok) {
+      router.push("/dashboard")
+      console.log("user created")
+    } else {
+      const error = await response.json()
+      form.setError("email", {
+        type: "manual",
+        message: error.error,
+      })
+      console.log(error)
+    }
   }
 
   return (

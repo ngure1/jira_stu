@@ -1,6 +1,11 @@
 import React from 'react'
 import SignUpForm from './SignUpForm'
 import Link from 'next/link'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "Sign Up",
+}
 
 const page = () => {
   return (
