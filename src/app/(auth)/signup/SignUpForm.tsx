@@ -1,19 +1,20 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
+import LoadingButton from "@/components/LoadingButton";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { signUpSchema, SignUpValues } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 // import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 
 const SignUpForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -25,26 +26,31 @@ const SignUpForm = () => {
   });
 
   async function onSubmit(values: SignUpValues) {
-    const response = await fetch("/api/auth/sign-up", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    })
-
-    if (response.ok) {
-      router.push("/dashboard")
-      console.log("user created")
-    } else {
-      const error = await response.json()
-      form.setError("email", {
-        type: "manual",
-        message: error.error,
+    startTransition(async () => {
+      await fetch("/api/auth/sign-up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      }).then( (response) => {
+        if (!response.ok) {
+          throw new Error("An error occurred while submitting the form")
+        }
+        router.push("/dashboard")
+        return response
+      }).catch( (error) => {
+        form.setError("email", {
+          type: "manual",
+          message: error.error,
+        })
       })
-      console.log(error)
-    }
+
+      
+      })
+    
   }
+  
 
   return (
     <Form {...form}>
@@ -56,7 +62,7 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="John Doe" disabled={isPending} {...field} />
               </FormControl>
               <FormDescription>
                 This is your public display name.
@@ -72,7 +78,7 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="example@xyz.com" {...field} />
+                <Input placeholder="example@xyz.com" disabled={isPending} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -89,6 +95,7 @@ const SignUpForm = () => {
                   <Input
                     type={showPassword ? "text" : "password"}
                     {...field}
+                    disabled={isPending}
                   />
                   <button
                     type="button"
@@ -107,9 +114,7 @@ const SignUpForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
-          Create Account
-        </Button>
+        <LoadingButton type="submit" loading={isPending} className="w-full">Create Account</LoadingButton>
       </form>
     </Form>
   )
