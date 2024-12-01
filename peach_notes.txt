@@ -1,0 +1,4 @@
+- mode insensitive on sign up check for existing email
+- when email is not found in db when login in, the zod error message is "undefined"
+- get User() return - fix stuff in (main)layout
+- add toast for feedback on auth 

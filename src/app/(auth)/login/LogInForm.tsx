@@ -4,36 +4,59 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { loginSchema, LoginValues } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import LoadingButton from "@/components/LoadingButton";
 
 
 const LogInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-        username: "",
-        password: "",
-        },
+      email: "",
+      password: "",
+    },
   });
 
   async function onSubmit(values: LoginValues) {
-    console.log(values);
+    startTransition(async () => {
+      await fetch("/api/auth/sign-in", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      }).then((response) => {
+        if (!response.ok) {
+          throw new Error("An error occurred while submitting the form")
+        }
+        router.push("/dashboard")
+        return response
+      }).catch((error) => {
+        form.setError("email", {
+          type: "manual",
+          message: error.error,
+        })
+      })
+    }
+    )
   }
 
   return (
     <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="username"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input placeholder="John Doe" {...field} />
               </FormControl>
@@ -70,9 +93,9 @@ const LogInForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
-          Log in
-        </Button>
+        <LoadingButton loading={isPending} type="submit" className="w-full">
+          Log In
+        </LoadingButton>
       </form>
     </Form>
   )
