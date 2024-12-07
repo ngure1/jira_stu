@@ -9,12 +9,14 @@ import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import LoadingButton from "@/components/LoadingButton";
+import { useToast } from "@/hooks/use-toast";
 
 
 const LogInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -36,12 +38,14 @@ const LogInForm = () => {
         if (!response.ok) {
           throw new Error("An error occurred while submitting the form")
         }
+        toast({
+          description: "Successfully logged in",
+        })
         router.push("/dashboard")
         return response
-      }).catch((error) => {
-        form.setError("email", {
-          type: "manual",
-          message: error.error,
+      }).catch(() => {
+        toast({
+          description: "An error occurred while submitting the form",
         })
       })
     }

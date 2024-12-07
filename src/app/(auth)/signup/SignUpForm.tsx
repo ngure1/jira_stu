@@ -3,6 +3,7 @@
 import LoadingButton from "@/components/LoadingButton";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import { signUpSchema, SignUpValues } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff} from "lucide-react";
@@ -15,6 +16,7 @@ const SignUpForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const { toast } = useToast()
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -37,12 +39,14 @@ const SignUpForm = () => {
         if (!response.ok) {
           throw new Error("An error occurred while submitting the form")
         }
+        toast({
+          description: "Account created successfully",
+        })
         router.push("/dashboard")
         return response
-      }).catch( (error) => {
-        form.setError("email", {
-          type: "manual",
-          message: error.error,
+      }).catch( () => {
+        toast({
+          description: "An error occurred while submitting the form",
         })
       })
 
