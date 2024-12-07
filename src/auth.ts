@@ -46,7 +46,8 @@ export const validateRequest = cache(
     async (): Promise<
         { user: User, session: Session } | { user: null, session: null }
     > => {
-        const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+        const sessionId = cookies().get("lucia-session")?.value ?? null;
+        console.log(sessionId);
 
         if (!sessionId){
             return {
