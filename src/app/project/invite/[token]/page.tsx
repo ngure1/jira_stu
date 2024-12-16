@@ -33,6 +33,14 @@ const page = async ({ params }: { params: { token: string } }) => {
 		return <p>Project not found</p>;
 	}
 
+	const invitedUser = await prisma.user.findUnique({
+		where: { id: invitation.userId },
+	});
+
+	if(invitedUser!.email !== user.email) {
+		return <p>The invitation is not for you</p>;
+	}
+
 	// Check if the user is already a member
 	const existingMember = await prisma.projectMembers.findFirst({
 		where: {
